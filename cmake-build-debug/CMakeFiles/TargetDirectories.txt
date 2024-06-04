@@ -1,0 +1,3 @@
+C:/Users/krieg/CLionProjects/TravelingSalesman/cmake-build-debug/CMakeFiles/TravelingSalesman.dir
+C:/Users/krieg/CLionProjects/TravelingSalesman/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/krieg/CLionProjects/TravelingSalesman/cmake-build-debug/CMakeFiles/rebuild_cache.dir
