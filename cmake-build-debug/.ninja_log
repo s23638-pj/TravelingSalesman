@@ -1,4 +1,5 @@
 # ninja log v5
-0	366	7392278099496180	CMakeFiles/TravelingSalesman.dir/main.cpp.obj	1ed807a52b15e0e
+3	743	7399319550268780	CMakeFiles/TravelingSalesman.dir/main.cpp.obj	1ed807a52b15e0e
 367	483	7392278100633876	TravelingSalesman.exe	5ca05926e1ccc427
-2	429	7392292671709092	CMakeFiles/TravelingSalesman.dir/main.cpp.obj	1ed807a52b15e0e
+2	534	7399320947213603	CMakeFiles/TravelingSalesman.dir/tsp.cpp.obj	97262e99cc40cbac
+535	632	7399320948167521	TravelingSalesman.exe	d4d80232a131bb73

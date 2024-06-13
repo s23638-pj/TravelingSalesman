@@ -5,50 +5,50 @@
 #include <cstdlib>
 #include "tsp.h"
 
-// Wczytanie tras
-std::vector<std::vector<double>> loadDistanceMatrix(const std::string& filename) {
-    std::vector<std::vector<double>> matrix;
-    std::ifstream file(filename);
-    if (!file) {
-        std::cerr << "Nie można otworzyć pliku: " << filename << std::endl;
-        exit(1);
-    }
-
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        std::vector<double> row;
-        double value;
-        while (iss >> value) {
-            row.push_back(value);
-        }
-        matrix.push_back(row);
-    }
-    return matrix;
-}
+using namespace std;
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Użycie: " << argv[0] << " <plik_z_danymi>" << std::endl;
+        cerr << "Użycie: " << argv[0] << " <plik_z_danymi>" << endl;
         return 1;
     }
 
-    std::string filename = argv[1];
-    auto distanceMatrix = loadDistanceMatrix(filename);
+    string filename = argv[1];
+    pair<vector<string>, vector<vector<double>>> data;
+    if (filename.substr(filename.find_last_of(".") + 1) == "csv") {
+        data = read_csv(filename);
+    } else {
+        cerr << "Nieobsługiwany format pliku: " << filename << endl;
+        return 1;
+    }
+
+    auto [cityNames, distanceMatrix] = data;
     int numberOfCities = distanceMatrix.size();
 
     // Generowanie losowego rozwiązania
-    Route initialRoute = generateRandomSolution(numberOfCities, distanceMatrix);
+    Route initialRoute = generate_random_solution(numberOfCities, distanceMatrix);
 
-    std::cout << "Początkowa trasa: ";
+    cout << "Początkowa trasa:\n";
     for (int city : initialRoute.cities) {
-        std::cout << city << " ";
+        cout << cityNames[city] << " ";
     }
-    std::cout << "\nKoszt: " << initialRoute.cost << std::endl;
+    cout << "\nKoszt: " << initialRoute.cost << endl;
 
-    // Generowanie sąsiedztwa
-    auto neighborhood = generateNeighborhood(initialRoute, distanceMatrix);
-    std::cout << "Liczba sąsiednich tras: " << neighborhood.size() << std::endl;
+    // Algorytm wspinaczkowy
+    Route hillClimbingRoute = solve_hill_climbing(distanceMatrix);
+    cout << "Trasa po algorytmie wspinaczkowym:\n";
+    for (int city : hillClimbingRoute.cities) {
+        cout << cityNames[city] << " ";
+    }
+    cout << "\nKoszt: " << hillClimbingRoute.cost << endl;
+
+    // Algorytm pełnego przeglądu
+    Route bestRoute = check_tsp(distanceMatrix);
+    cout << "Najlepsza trasa (pełny przegląd):\n";
+    for (int city : bestRoute.cities) {
+        cout << cityNames[city] << " ";
+    }
+    cout << "\nKoszt: " << bestRoute.cost << endl;
 
     return 0;
 }
