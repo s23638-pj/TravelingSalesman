@@ -6,6 +6,8 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <deque>
+#include <unordered_set>
 
 using namespace std;
 
@@ -46,7 +48,7 @@ Route generate_random_solution(int numberOfCities, const vector<vector<double>>&
 }
 
 // Algorytm pełnego przeglądu
-Route check_tsp(const vector<vector<double>>& distanceMatrix) {
+Route solve_tsp(const vector<vector<double>>& distanceMatrix) {
     int numberOfCities = distanceMatrix.size();
     vector<int> cities(numberOfCities);
     iota(cities.begin(), cities.end(), 0);
@@ -86,6 +88,51 @@ Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix) {
     return currentRoute;
 }
 
+// Algorytm Tabu
+Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize) {
+    int numberOfCities = distanceMatrix.size();
+    Route bestRoute = generate_random_solution(numberOfCities, distanceMatrix);
+    Route currentRoute = bestRoute;
+
+    deque<pair<int, int>> tabuList;
+    unordered_set<size_t> tabuSet;
+
+    for (int iteration = 0; iteration < 1000; ++iteration) {
+        auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
+        Route bestNeighbor = currentRoute;
+        for (const auto& neighbor : neighborhood) {
+            if (neighbor.cost < bestNeighbor.cost && tabuSet.find(hash_pair(neighbor.cities[0], neighbor.cities[1])) == tabuSet.end()) {
+                bestNeighbor = neighbor;
+            }
+        }
+
+        if (bestNeighbor.cost < bestRoute.cost) {
+            bestRoute = bestNeighbor;
+        }
+
+        currentRoute = bestNeighbor;
+
+        // Dodanie ruchu do listy tabu
+        pair<int, int> move = make_pair(bestNeighbor.cities[0], bestNeighbor.cities[1]);
+        tabuList.push_back(move);
+        tabuSet.insert(hash_pair(move.first, move.second));
+
+        if (tabuList.size() > tabuSize) {
+            pair<int, int> oldestMove = tabuList.front();
+            tabuList.pop_front();
+            tabuSet.erase(hash_pair(oldestMove.first, oldestMove.second));
+        }
+    }
+
+    return bestRoute;
+}
+
+// Funkcja pomocnicza do haszowania pary miast
+size_t hash_pair(int a, int b) {
+    return hash<int>()(a) ^ hash<int>()(b);
+}
+
+
 // Funkcja wczytująca dane z pliku CSV
 pair<vector<string>, vector<vector<double>>> read_csv(const string& filename) {
     vector<vector<double>> matrix;
@@ -106,7 +153,6 @@ pair<vector<string>, vector<vector<double>>> read_csv(const string& filename) {
                 cityNames.push_back(cityName);
             }
         }
-        cityNames.erase(cityNames.begin()); // Usuń pierwszy pusty element
     }
 
     // Wczytaj macierz odległości

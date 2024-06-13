@@ -17,10 +17,14 @@ vector<Route> generate_neighborhood(const Route& currentRoute, const vector<vect
 
 Route generate_random_solution(int numberOfCities, const vector<vector<double>>& distanceMatrix);
 
-Route check_tsp(const vector<vector<double>>& distanceMatrix);
+Route solve_tsp(const vector<vector<double>>& distanceMatrix);
 
 Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix);
 
+Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize);
+
 pair<vector<string>, vector<vector<double>>> read_csv(const string& filename);
+
+size_t hash_pair(int a, int b);
 
 #endif // TSP_H
