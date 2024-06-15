@@ -39,7 +39,7 @@ vector<Route> generate_neighborhood(const Route& currentRoute, const vector<vect
 Route generate_random_solution(int numberOfCities, const vector<vector<double>>& distanceMatrix) {
     Route randomRoute;
     randomRoute.cities.resize(numberOfCities);
-    iota(randomRoute.cities.begin(), randomRoute.cities.end(), 0);
+    iota(randomRoute.cities.begin(), randomRoute.cities.end(), 0); // Funkcja wypełniajaca od zera
     random_device rd;
     mt19937 g(rd());
     shuffle(randomRoute.cities.begin(), randomRoute.cities.end(), g);
@@ -48,13 +48,14 @@ Route generate_random_solution(int numberOfCities, const vector<vector<double>>&
 }
 
 // Algorytm pełnego przeglądu
-Route solve_tsp(const vector<vector<double>>& distanceMatrix) {
+Route solve_full_review(const vector<vector<double>>& distanceMatrix, int maxIterations, int& iteration_count) {
     int numberOfCities = distanceMatrix.size();
     vector<int> cities(numberOfCities);
     iota(cities.begin(), cities.end(), 0);
 
     Route bestRoute;
     bestRoute.cost = numeric_limits<double>::infinity();
+    iteration_count = 0;
 
     // Generowanie wszystkich możliwych permutacji miast
     do {
@@ -63,18 +64,23 @@ Route solve_tsp(const vector<vector<double>>& distanceMatrix) {
             bestRoute.cities = cities;
             bestRoute.cost = currentCost;
         }
+        iteration_count++;
+        if (iteration_count >= maxIterations) {
+            break;
+        }
     } while (next_permutation(cities.begin(), cities.end()));
 
     return bestRoute;
 }
 
 // Algorytm wspinaczkowy
-Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix) {
+Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix, int maxIterations, int& iteration_count) {
     int numberOfCities = distanceMatrix.size();
     Route currentRoute = generate_random_solution(numberOfCities, distanceMatrix);
     bool improvement = true;
+    iteration_count = 0;
 
-    while (improvement) {
+    while (improvement && iteration_count < maxIterations) {
         improvement = false;
         auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
         for (const auto& neighbor : neighborhood) {
@@ -83,21 +89,23 @@ Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix) {
                 improvement = true;
             }
         }
+        iteration_count++;
     }
 
     return currentRoute;
 }
 
 // Algorytm Tabu
-Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize) {
+Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize, int maxIterations, int& iteration_count) {
     int numberOfCities = distanceMatrix.size();
     Route bestRoute = generate_random_solution(numberOfCities, distanceMatrix);
     Route currentRoute = bestRoute;
 
     deque<pair<int, int>> tabuList;
     unordered_set<size_t> tabuSet;
+    iteration_count = 0;
 
-    for (int iteration = 0; iteration < 1000; ++iteration) {
+    for (int iteration = 0; iteration < maxIterations; ++iteration) {
         auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
         Route bestNeighbor = currentRoute;
         for (const auto& neighbor : neighborhood) {
@@ -122,6 +130,8 @@ Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize) {
             tabuList.pop_front();
             tabuSet.erase(hash_pair(oldestMove.first, oldestMove.second));
         }
+
+        iteration_count++;
     }
 
     return bestRoute;
@@ -131,7 +141,6 @@ Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize) {
 size_t hash_pair(int a, int b) {
     return hash<int>()(a) ^ hash<int>()(b);
 }
-
 
 // Funkcja wczytująca dane z pliku CSV
 pair<vector<string>, vector<vector<double>>> read_csv(const string& filename) {
