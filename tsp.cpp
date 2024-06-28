@@ -59,6 +59,9 @@ Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix, int maxI
     bool improvement = true;
     iteration_count = 0;
 
+    ofstream csvFile("hill_climbing.csv");
+    csvFile << "Iteration,Cost\n";  // Nagłówki kolumn
+
     while (improvement && iteration_count < maxIterations) {
         improvement = false;
         auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
@@ -69,8 +72,10 @@ Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix, int maxI
             }
         }
         iteration_count++;
+        csvFile << iteration_count << "," << currentRoute.cost << "\n";  // Zapis do pliku CSV
     }
 
+    csvFile.close();
     return currentRoute;
 }
 
@@ -83,6 +88,9 @@ Route solve_random_hill_climbing(const vector<vector<double>>& distanceMatrix, i
     mt19937 rgen(rd());
     iteration_count = 0;
 
+    ofstream csvFile("random_hill_climbing.csv");
+    csvFile << "Iteration,Cost\n";  // Nagłówki kolumn
+
     for (int i = 0; i < maxIterations; ++i) {
         auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
         uniform_int_distribution<int> dist(0, neighborhood.size() - 1);
@@ -92,13 +100,15 @@ Route solve_random_hill_climbing(const vector<vector<double>>& distanceMatrix, i
             currentRoute = newRoute;
         }
         iteration_count++;
+        csvFile << iteration_count << "," << currentRoute.cost << "\n";  // Zapis do pliku CSV
     }
 
+    csvFile.close();
     return currentRoute;
 }
 
-// Algorytm pełnego przeglądu
-Route solve_full_review(const vector<vector<double>>& distanceMatrix, int& iteration_count) {
+// Algorytm pełnego przeglądu z ograniczeniem iteracji
+Route solve_full_review(const vector<vector<double>>& distanceMatrix, int maxIterations, int& iteration_count) {
     int numberOfCities = distanceMatrix.size();
     vector<int> cities(numberOfCities);
     for (int i = 0; i < numberOfCities; ++i) {
@@ -110,6 +120,9 @@ Route solve_full_review(const vector<vector<double>>& distanceMatrix, int& itera
     bestRoute.cost = check_cost(cities, distanceMatrix);
     iteration_count = 0;
 
+    ofstream csvFile("full_review.csv");
+    csvFile << "Iteration,Cost\n";  // Nagłówki kolumn
+
     do {
         Route currentRoute;
         currentRoute.cities = cities;
@@ -119,8 +132,14 @@ Route solve_full_review(const vector<vector<double>>& distanceMatrix, int& itera
             bestRoute = currentRoute;
         }
         iteration_count++;
+        csvFile << iteration_count << "," << currentRoute.cost << "\n";  // Zapis do pliku CSV
+
+        if (iteration_count >= maxIterations) {
+            break;
+        }
     } while (next_permutation(cities.begin(), cities.end()));
 
+    csvFile.close();
     return bestRoute;
 }
 
@@ -136,6 +155,9 @@ Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize, int
 
     Route bestRoute = currentRoute;
     iteration_count = 0;
+
+    ofstream csvFile("tabu_search.csv");
+    csvFile << "Iteration,Cost\n";  // Nagłówki kolumn
 
     for (int i = 0; i < maxIterations; ++i) {
         auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
@@ -167,8 +189,10 @@ Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize, int
 
         currentRoute = nextRoute;
         iteration_count++;
+        csvFile << iteration_count << "," << currentRoute.cost << "\n";  // Zapis do pliku CSV
     }
 
+    csvFile.close();
     return bestRoute;
 }
 
@@ -181,6 +205,9 @@ Route solve_simulated_annealing(const vector<vector<double>>& distanceMatrix, fu
     random_device rd;
     mt19937 rgen(rd());
     iteration_count = 0;
+
+    ofstream csvFile("simulated_annealing.csv");
+    csvFile << "Iteration,Cost\n";  // Nagłówki kolumn
 
     for (int i = 0; i < maxIterations; ++i) {
         auto neighborhood = generate_neighborhood(currentRoute, distanceMatrix);
@@ -199,8 +226,10 @@ Route solve_simulated_annealing(const vector<vector<double>>& distanceMatrix, fu
             }
         }
         iteration_count++;
+        csvFile << iteration_count << "," << currentRoute.cost << "\n";  // Zapis do pliku CSV
     }
 
+    csvFile.close();
     return bestRoute;
 }
 

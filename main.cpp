@@ -4,6 +4,7 @@
 #include <chrono>
 #include <sys/resource.h> // for getrusage
 #include "tsp.h"
+#include <fstream> // Dodano do obsługi plików
 
 using namespace std;
 using namespace std::chrono;
@@ -130,7 +131,7 @@ int main(int argc, char* argv[]) {
     int tsp_iterations;
     auto start_tsp = high_resolution_clock::now();
     long mem_before_tsp = getCurrentMemoryUsage();
-    Route bestRoute = solve_full_review(distanceMatrix, tsp_iterations);
+    Route bestRoute = solve_full_review(distanceMatrix, maxIterations, tsp_iterations);
     long mem_after_tsp = getCurrentMemoryUsage();
     auto end_tsp = high_resolution_clock::now();
     duration<double, milli> duration_tsp = end_tsp - start_tsp;

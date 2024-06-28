@@ -22,7 +22,7 @@ Route solve_hill_climbing(const vector<vector<double>>& distanceMatrix, int maxI
 
 Route solve_random_hill_climbing(const vector<vector<double>>& distanceMatrix, int maxIterations, int& iteration_count);
 
-Route solve_full_review(const vector<vector<double>>& distanceMatrix, int& iteration_count);
+Route solve_full_review(const vector<vector<double>>& distanceMatrix, int maxIterations, int& iteration_count);
 
 Route solve_tabu(const vector<vector<double>>& distanceMatrix, int tabuSize, int maxIterations, int& iteration_count);
 
